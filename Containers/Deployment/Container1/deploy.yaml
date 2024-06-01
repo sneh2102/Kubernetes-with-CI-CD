@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: c1-deployement
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: container1
+  template:
+    metadata:
+      labels:
+        app: container1
+    spec:
+      containers:
+        - name: container1
+          image: us-central1-docker.pkg.dev/kubernetes-417314/k8s/container1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 6000
+          volumeMounts:
+            - name: data-volume
+              mountPath: /usr/src/app/SNEH_PV_dir
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: persistent-volume-claim
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: c1-service
+spec:
+  selector:
+    app: container1
+  ports:
+    - protocol: TCP
+      port: 6000
+      targetPort: 6000
+  type: LoadBalancer
+
